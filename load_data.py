@@ -55,6 +55,10 @@ class GetData():
     def impute_missing_values_using_simple_imputer(df):
         imputer = SimpleImputer(strategy='mean')
         imputer.fit(df)
-        imputer.set_output(transform="pandas")
-        df_imputed = imputer.transform(df)
+        # imputer.set_output(transform="pandas")
+        df_ary = imputer.transform(df)
+        df_imputed = pd.DataFrame(df_ary, columns=df.columns, index=df.index)
+        assert (df_imputed[target_value_column_name]-df[target_value_column_name]).sum() == 0.0
+        
         return df_imputed
+        
