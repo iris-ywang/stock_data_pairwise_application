@@ -16,7 +16,7 @@ def build_ml_model(model, train_data, params=None, test_data=None):
     x_train = train_data[:, 1:]
     y_train = train_data[:, 0]
     if params is not None:
-        search = RandomizedSearchCV(estimator=model, param_distributions=params, cv=4, random_state=11)
+        search = RandomizedSearchCV(estimator=model, param_distributions=params, cv=4, random_state=11, n_jobs=-1)
         search.fit(x_train, y_train)
         model = search.best_estimator_
     fitted_model = model.fit(x_train, y_train)
