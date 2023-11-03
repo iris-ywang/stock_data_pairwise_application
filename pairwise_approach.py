@@ -3,9 +3,7 @@ import logging
 import numpy as np
 import logging
 
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, ndcg_score, accuracy_score
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 
 from pa_basics.all_pairs import pair_by_pair_id_per_feature
 from pa_basics.rating import rating_trueskill
@@ -16,7 +14,7 @@ def build_ml_model(model, train_data, params=None, test_data=None):
     x_train = train_data[:, 1:]
     y_train = train_data[:, 0]
     if params is not None:
-        search = RandomizedSearchCV(estimator=model, param_distributions=params, cv=4, random_state=11, n_jobs=-1)
+        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=-1)
         search.fit(x_train, y_train)
         model = search.best_estimator_
     fitted_model = model.fit(x_train, y_train)
@@ -49,20 +47,26 @@ def calculate_returns(y_test_pred, y_test_true, n_portofolio):
     return mean_y_true_top_x + 1, mean_y_top_x_true + 1
 
 
-def performance_standard_approach(data: GetData, ML_reg, n_portofolio, params=None):
+def performance_standard_approach(data: GetData, ML_reg, n_portofolios, params=None):
     logging.info("Running performance_standard_approach")
     train_ary = data.train_ary
     test_ary = data.test_ary
     # Default version:
     _, y_SA_d = build_ml_model(ML_reg, train_ary, test_data=test_ary)
-    pred_return_d, true_return_d = calculate_returns(y_SA_d, test_ary[:, 0] , n_portofolio)
-
     _, y_SA = build_ml_model(ML_reg, train_ary, test_data=test_ary, params=params)
-    pred_return, true_return = calculate_returns(y_SA, test_ary[:, 0] , n_portofolio)
-    return [[pred_return_d, true_return_d], [pred_return, true_return]]
+
+    pred_true_return_list = {n: [] for n in n_portofolios}
+    for n_portofolio in n_portofolios:
+        pred_return_d, true_return_d = calculate_returns(y_SA_d, test_ary[:, 0] , n_portofolio)
+        pred_return, true_return = calculate_returns(y_SA, test_ary[:, 0] , n_portofolio)
+
+        pred_true_return_list[n_portofolio].append([pred_return_d, true_return_d])
+        pred_true_return_list[n_portofolio].append([pred_return, true_return])
+
+    return pred_true_return_list
 
 
-def performance_pairwise_approach(data: GetData, ML_cls, n_portofolio,
+def performance_pairwise_approach(data: GetData, ML_cls, n_portofolios: list,
                                   batch_size=1000000, params=None):
     logging.info("Running performance_pairwise_approach")
     runs_of_estimators = len(data.train_pair_ids) // batch_size
@@ -120,30 +124,38 @@ def performance_pairwise_approach(data: GetData, ML_cls, n_portofolio,
         # Y_pa_c3_true += list(test_pairs_batch[:, 0])
 
 
-    pred_true_return_list = []
+    pred_true_return_list = {n: [] for n in n_portofolios}
     # A ranking C2 only:
     logging.info("C2 only")
     y_ranking = rating_trueskill(Y_pa_c2_sign, data.c2_test_pair_ids, data.train_test[:, 0])[data.test_ids]
-    pred_return_c2, true_return_c2 = calculate_returns(y_ranking, data.test_ary[:, 0] , n_portofolio)
-    pred_true_return_list.append([pred_return_c2, true_return_c2])
+    for n_portofolio in n_portofolios:
+        pred_return_c2, true_return_c2 = calculate_returns(y_ranking, data.test_ary[:, 0] , n_portofolio)
+        pred_true_return_list[n_portofolio].append([pred_return_c2, true_return_c2])
+    
+    # A ranking C3 only:
+    logging.info("C3 only")
+    y_ranking_c3 = rating_trueskill(Y_pa_c3_sign, data.c3_test_pair_ids, data.train_test[:, 0])[data.test_ids]
+    for n_portofolio in n_portofolios:
+        pred_return_c3, true_return_c3 = calculate_returns(y_ranking_c3, data.test_ary[:, 0] , n_portofolio)
+        pred_true_return_list[n_portofolio].append([pred_return_c3, true_return_c3])
                                  
     # A ranking C2+C3 :
     logging.info("C2+C3")
     y_ranking_c2c3 = rating_trueskill(list(np.concatenate([Y_pa_c2_sign, Y_pa_c3_sign])),
                                       data.c2_test_pair_ids + data.c3_test_pair_ids,
                                       data.train_test[:, 0])[data.test_ids]
-    
-    pred_return_c2c3, true_return_c2c3 = calculate_returns(y_ranking_c2c3, data.test_ary[:, 0] , n_portofolio)
-    pred_true_return_list.append([pred_return_c2c3, true_return_c2c3])
+    for n_portofolio in n_portofolios:
+        pred_return_c2c3, true_return_c2c3 = calculate_returns(y_ranking_c2c3, data.test_ary[:, 0] , n_portofolio)
+        pred_true_return_list[n_portofolio].append([pred_return_c2c3, true_return_c2c3])
 
     # A ranking C1+C2+C3 :
     logging.info("C1+C2+C3")
     y_ranking_c1c2c3 = rating_trueskill(list(np.concatenate([Y_pa_c1_sign, Y_pa_c2_sign, Y_pa_c3_sign])),
                                       data.train_pair_ids + data.c2_test_pair_ids + data.c3_test_pair_ids,
                                       data.train_test[:, 0])[data.test_ids]
-    
-    pred_return_c1c2c3, true_return_c1c2c3 = calculate_returns(y_ranking_c1c2c3, data.test_ary[:, 0] , n_portofolio)
-    pred_true_return_list.append([pred_return_c1c2c3, true_return_c1c2c3])
+    for n_portofolio in n_portofolios:
+        pred_return_c1c2c3, true_return_c1c2c3 = calculate_returns(y_ranking_c1c2c3, data.test_ary[:, 0] , n_portofolio)
+        pred_true_return_list[n_portofolio].append([pred_return_c1c2c3, true_return_c1c2c3])
 
     # TODO: Check MSE of pairwise prediction - Next time
 
