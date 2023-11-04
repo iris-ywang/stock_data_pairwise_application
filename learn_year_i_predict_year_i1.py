@@ -27,7 +27,7 @@ def run(year, n_portofolios, random_state=None):
     data = GetData(os.getcwd() + "/stock_yearly_data/", year, prefix="stock_data")
 
     params_reg = {
-    'criterion': ['squared_error', 'friedman_mse', 'poisson'],
+    'criterion': ['mse'],
     'max_features': [1, 0.6, 0.3],
     'max_samples': [1, 0.8, 0.6, 0.4],
     'n_estimators': [100, 400, 800, 1200, 1600, 2000]
@@ -36,9 +36,12 @@ def run(year, n_portofolios, random_state=None):
     # 'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
     # 'min_samples_leaf': [1, 2, 4],
     # 'min_samples_split': [2, 5, 10],
+    # Only available for scikit-learn 1.3+:
+    # 'criterion': ['squared_error', 'friedman_mse', 'poisson'],
+    # 'criterion': ['gini', 'entropy', 'log_loss'],
 
     params_cls = {
-    'criterion': ['gini', 'entropy', 'log_loss'],
+    'criterion': ['gini', 'entropy'],
     'max_features': [1, 0.6, 0.3],
     'max_samples': [1, 0.8, 0.6, 0.4],
     'n_estimators': [100, 400, 800, 1200, 1600, 2000]
@@ -62,7 +65,7 @@ if __name__ == "__main__":
     #     results = executor.map(run, range(2010, 2021), chunksize=1)
 
     results = []
-    n_portofolios = [1, 2, 3, 5, 7]  
+    n_portofolios = [10, 20, 30, 50, 75]  
     for year in range(2010, 2021):
         for rs in [111,222,333]:
 
