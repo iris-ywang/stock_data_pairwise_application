@@ -62,7 +62,7 @@ if __name__ == "__main__":
     #     results = executor.map(run, range(2010, 2021), chunksize=1)
 
     results = []
-    n_portofolios = [10, 20, 30, 50, 75]  
+    n_portofolios = [1, 2, 3, 5, 7]  
     for year in range(2010, 2021):
         for rs in [111,222,333]:
 
@@ -79,3 +79,5 @@ if __name__ == "__main__":
 
 # A record: results_run_20231028.npy, results_run_20231029.npy, results_run_20231030.npy are random states of n_portofolio=10, RF, random_search without criteria params
 # A record: results_run_20231030_n_p_larger.npy, n_portofolio=20, RF, random_search with criteria params.
+
+# 03/11/2023, running RF grid search 30191410
