@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from load_data import GetData
 from pairwise_approach import performance_standard_approach, performance_pairwise_approach
 import warnings
+import multiprocessing
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -47,6 +48,8 @@ def run(year, n_portofolios, random_state=None):
     'n_estimators': [100, 400, 800, 1200, 1600, 2000]
     }
 
+    n_cpus = multiprocessing.cpu_count()
+
 
     ML_reg = RandomForestRegressor(n_jobs=-1, random_state=random_state)
     ML_cls = RandomForestClassifier(n_jobs=-1, random_state=random_state)
@@ -68,7 +71,10 @@ if __name__ == "__main__":
     n_portofolios = [10, 20, 30, 50, 75]  
     for year in range(2010, 2021):
         for rs in [111,222,333]:
-
+            if (year==2017) and (rs in [111,222]):
+                logging.info(f"{year} with {rs} has been evaluated in the previous run. Skipping now. ")
+                continue
+            
             all_returns_dict = run(year, n_portofolios, random_state=rs)
             for n_p, returns in all_returns_dict.items():
                 returns = [year, n_p, rs] + returns

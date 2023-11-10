@@ -9,12 +9,15 @@ from pa_basics.all_pairs import pair_by_pair_id_per_feature
 from pa_basics.rating import rating_trueskill
 from load_data import GetData
 
+import multiprocessing
 
 def build_ml_model(model, train_data, params=None, test_data=None):
     x_train = train_data[:, 1:]
     y_train = train_data[:, 0]
+    n_cpus = multiprocessing.cpu_count()
+
     if params is not None:
-        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=-1)
+        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=int(n_cpus / 2.5))
         search.fit(x_train, y_train)
         model = search.best_estimator_
     fitted_model = model.fit(x_train, y_train)
