@@ -51,8 +51,8 @@ def run(year, n_portofolios, random_state=None):
     n_cpus = multiprocessing.cpu_count()
 
 
-    ML_reg = RandomForestRegressor(n_jobs=-1, random_state=random_state)
-    ML_cls = RandomForestClassifier(n_jobs=-1, random_state=random_state)
+    ML_reg = RandomForestRegressor(n_jobs=int(n_cpus / 2.5), random_state=random_state)
+    ML_cls = RandomForestClassifier(n_jobs=int(n_cpus / 2.5), random_state=random_state)
     return_sa = performance_standard_approach(data, ML_reg, n_portofolios, params=params_reg)
     returns_pa = performance_pairwise_approach(data, ML_cls, n_portofolios, params=params_cls)
 
@@ -64,22 +64,22 @@ def run(year, n_portofolios, random_state=None):
 
 
 if __name__ == "__main__":
-    # with multiprocessing.Pool(processes=3) as executor:
+    # with multiprocessing.Pool(processes=3) as executor:a
     #     results = executor.map(run, range(2010, 2021), chunksize=1)
 
     results = []
     n_portofolios = [10, 20, 30, 50, 75]  
-    for year in range(2010, 2021):
+    for year in range(2017, 2021):
         for rs in [111,222,333]:
             if (year==2017) and (rs in [111,222]):
                 logging.info(f"{year} with {rs} has been evaluated in the previous run. Skipping now. ")
                 continue
-            
+
             all_returns_dict = run(year, n_portofolios, random_state=rs)
             for n_p, returns in all_returns_dict.items():
                 returns = [year, n_p, rs] + returns
                 results.append(returns)
-        np.save("results_run_20231103_gridsearch_rf.npy", np.array(results))
+            np.save("results_run_20231103_gridsearch_rf_2017_333.npy", np.array(results))
 
 
 
