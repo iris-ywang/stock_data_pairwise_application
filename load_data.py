@@ -10,8 +10,20 @@ target_value_column_name = "annual_pc_price_change"
 
 class GetData():
     def __init__(self, folder_path, learning_year, prefix="stock_data"):
-        train_df = pd.read_csv(folder_path + f"/{prefix}_{learning_year}.csv", index_col=0)
-        test_df = pd.read_csv(folder_path + f"/{prefix}_{learning_year+1}.csv", index_col=0)
+        year1_df = pd.read_csv(folder_path + f"/{prefix}_{learning_year}.csv", index_col=0)
+        year2_df = pd.read_csv(folder_path + f"/{prefix}_{learning_year+1}.csv", index_col=0)
+        year3_df = pd.read_csv(folder_path + f"/{prefix}_{learning_year+2}.csv", index_col=0)
+
+        train_df = year1_df.merge(year2_df[target_value_column_name], how="left", left_index=True, right_index=True)
+        train_df[target_value_column_name + '_x'] = train_df[target_value_column_name + '_y']
+        train_df = train_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name})
+        
+        test_df = year2_df.merge(year3_df[target_value_column_name], how="left", left_index=True, right_index=True)
+        test_df[target_value_column_name + '_x'] = test_df[target_value_column_name + '_y']
+        test_df = test_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name})
+        
+
+        test_df.iloc[:, 0] = year3_df.iloc[:, 0]
 
         self.train_df = train_df
         self.test_df = test_df
