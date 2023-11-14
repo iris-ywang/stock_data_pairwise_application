@@ -21,9 +21,6 @@ class GetData():
         test_df = year2_df.merge(year3_df[target_value_column_name], how="left", left_index=True, right_index=True)
         test_df[target_value_column_name + '_x'] = test_df[target_value_column_name + '_y']
         test_df = test_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name})
-        
-
-        test_df.iloc[:, 0] = year3_df.iloc[:, 0]
 
         self.train_df = train_df
         self.test_df = test_df
