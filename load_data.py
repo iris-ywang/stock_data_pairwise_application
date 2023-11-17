@@ -16,11 +16,11 @@ class GetData():
 
         train_df = year1_df.merge(year2_df[target_value_column_name], how="left", left_index=True, right_index=True)
         train_df[target_value_column_name + '_x'] = train_df[target_value_column_name + '_y']
-        train_df = train_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name})
+        train_df = train_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name}).reset_index()
         
         test_df = year2_df.merge(year3_df[target_value_column_name], how="left", left_index=True, right_index=True)
         test_df[target_value_column_name + '_x'] = test_df[target_value_column_name + '_y']
-        test_df = test_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name})
+        test_df = test_df.drop([target_value_column_name + '_y'], axis=1).rename(columns={target_value_column_name + '_x': target_value_column_name}).reset_index()
 
         self.train_df = train_df
         self.test_df = test_df
@@ -62,6 +62,8 @@ class GetData():
     
     @staticmethod
     def impute_missing_values_using_simple_imputer(df):
+        df = df.set_index("index")
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
         imputer = SimpleImputer(strategy='mean')
         imputer.fit(df)
         # imputer.set_output(transform="pandas")

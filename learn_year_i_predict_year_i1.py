@@ -69,13 +69,13 @@ if __name__ == "__main__":
 
     results = []
     n_portofolios = [10, 20, 30, 50, 75]  
-    for year in range(2010, 2021):
+    for year in range(2012, 2021):
         for rs in [111,222,333]:
             all_returns_dict = run(year, n_portofolios, random_state=rs)
             for n_p, returns in all_returns_dict.items():
                 returns = [year, n_p, rs] + returns
                 results.append(returns)
-            np.save("results_run_20231113_gridsearch_rf_2010.npy", np.array(results))
+            np.save("results_run_20231113_gridsearch_rf_2012.npy", np.array(results))
 
 
 
