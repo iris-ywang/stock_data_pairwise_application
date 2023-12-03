@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import logging
 
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from sklearn.model_selection import GridSearchCV
 
 from pa_basics.all_pairs import pair_by_pair_id_per_feature
 from pa_basics.rating import rating_trueskill
@@ -17,7 +17,7 @@ def build_ml_model(model, train_data, params=None, test_data=None):
     n_cpus = multiprocessing.cpu_count()
 
     if params is not None:
-        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=int(n_cpus / 2.5))
+        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=int(n_cpus * 0.8))
         search.fit(x_train, y_train)
         model = search.best_estimator_
     fitted_model = model.fit(x_train, y_train)

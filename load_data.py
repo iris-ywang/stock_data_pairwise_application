@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os
+import logging
 from sklearn.impute import SimpleImputer
 from itertools import permutations
 from pa_basics.split_data import pair_test_with_train
@@ -25,6 +25,8 @@ class GetData():
         self.train_df = train_df
         self.test_df = test_df
         self.process_train_and_test_data()
+
+        logging.info(f"Training set size: {self.train_df.shape}, test set size: {self.test_df.shape}.")
 
         self.train_company_index = self.train_df.index
         self.test_company_index = self.test_df.index
