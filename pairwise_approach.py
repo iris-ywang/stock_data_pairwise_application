@@ -4,12 +4,14 @@ import numpy as np
 import logging
 
 from sklearn.model_selection import GridSearchCV
+from skopt import BayesSearchCV
 
 from pa_basics.all_pairs import pair_by_pair_id_per_feature
 from pa_basics.rating import rating_trueskill
 from load_data import GetData
 
 import multiprocessing
+import time
 
 def build_ml_model(model, train_data, params=None, test_data=None):
     x_train = train_data[:, 1:]
@@ -17,9 +19,14 @@ def build_ml_model(model, train_data, params=None, test_data=None):
     n_cpus = multiprocessing.cpu_count()
 
     if params is not None:
-        search = GridSearchCV(estimator=model, param_grid=params, cv=5, n_jobs=int(n_cpus * 0.8))
+        t = time.time()
+        search = BayesSearchCV(estimator=model, search_spaces=params, n_jobs=int(n_cpus * 0.9), cv=4)
+        # search = GridSearchCV(estimator=model, param_grid=params, cv=4, n_jobs=int(n_cpus * 0.9))
         search.fit(x_train, y_train)
         model = search.best_estimator_
+        logging.info(f"Training time: {time.time() - t}")
+        logging.info(f"Best parameters: {search.best_params_}")
+        
     fitted_model = model.fit(x_train, y_train)
 
     if type(test_data) == np.ndarray:
