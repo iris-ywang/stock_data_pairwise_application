@@ -26,16 +26,18 @@ def combine_returns(return_sa, return_pa, n_portofolios: list):
 
 def run(year, n_portofolios, random_state=None):
     data = GetData(os.getcwd() + "/stock_yearly_data/", year, prefix="stock_data")
+    
+    '''
+    params_reg = {
+    'C': [0.1, 1, 10, 25, 100], 
+    'gamma': [1,0.1,0.01, 0.001],
+    }
 
-    # params_reg = {
-    # 'C': [0.1, 1, 10, 25, 100], 
-    # 'gamma': [1,0.1,0.01, 0.001],
-    # }
-
-    # params_cls = {
-    # 'C': [0.1, 1, 10, 25, 100], 
-    # 'gamma': [1,0.1,0.01, 0.001],
-    # }
+    params_cls = {
+    'C': [0.1, 1, 10, 25, 100], 
+    'gamma': [1,0.1,0.01, 0.001],
+    }
+    '''
 
     params_reg = {
     'C': (1e-1, 100.0, 'log-uniform'), 
@@ -67,13 +69,13 @@ if __name__ == "__main__":
     #     results = executor.map(run, range(2010, 2021), chunksize=1)
 
     results = []
-    n_portofolios = [10, 20, ]  
-    for year in range(2016, 2021):
+    n_portofolios = [10, 20, 30, 50, 75]  
+    for year in range(2010, 2021):
         all_returns_dict = run(year, n_portofolios, )
         for n_p, returns in all_returns_dict.items():
             returns = [year, n_p, 0] + returns
             results.append(returns)
-        np.save("results_run_20231203_gridsearch_svm_2016.npy", np.array(results))
+        np.save("results_run_20231203_bayessearch_svm_2010.npy", np.array(results))
 
 
 

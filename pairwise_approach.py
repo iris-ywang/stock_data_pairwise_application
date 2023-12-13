@@ -20,12 +20,14 @@ def build_ml_model(model, train_data, params=None, test_data=None):
 
     if params is not None:
         t = time.time()
-        search = BayesSearchCV(estimator=model, search_spaces=params, n_jobs=int(n_cpus * 0.9), cv=4)
-        # search = GridSearchCV(estimator=model, param_grid=params, cv=4, n_jobs=int(n_cpus * 0.9))
+        search = BayesSearchCV(estimator=model, search_spaces=params, n_jobs=-1, cv=4)
         search.fit(x_train, y_train)
         model = search.best_estimator_
         logging.info(f"Training time: {time.time() - t}")
         logging.info(f"Best parameters: {search.best_params_}")
+    else:
+        logging.info("Not tuning")
+
         
     fitted_model = model.fit(x_train, y_train)
 

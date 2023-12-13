@@ -136,6 +136,7 @@ class PairingDataByFeature():
             else:  # is_continuous
                 new_sample.append(a[feature_id] - b[feature_id])
                 new_sample.append(a[feature_id])
+                new_sample.append(b[feature_id])
         return new_sample
 
 def pair_2samples_discretise(sample_a, sample_b, mapping):
