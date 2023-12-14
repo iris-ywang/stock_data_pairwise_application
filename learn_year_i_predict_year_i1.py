@@ -40,17 +40,15 @@ def run(year, n_portofolios, random_state=None):
     '''
 
     params_reg = {
-    'criterion': ['mse'],
-    'max_features': [1, 0.6, 0.3],
-    'max_samples': [1, 0.8, 0.6, 0.4],
-    'n_estimators': [100, 400, 800, 1200, 1600, 2000]
+    'max_features': (0.2, 0.999),
+    'max_samples':  (0.2, 0.999),
+    'n_estimators': (50, 2000),
                      }
 
     params_cls = {
-    'criterion': ['gini', 'entropy'],
-    'max_features': [1, 0.6, 0.3],
-    'max_samples': [1, 0.8, 0.6, 0.4],
-    'n_estimators': [100, 400, 800, 1200, 1600, 2000]
+    'max_features': (0.2, 0.999),
+    'max_samples': (0.2, 0.999),
+    'n_estimators': (50, 2000),
     }
 
     n_cpus = multiprocessing.cpu_count()
