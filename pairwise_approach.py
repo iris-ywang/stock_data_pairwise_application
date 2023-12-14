@@ -20,7 +20,7 @@ def build_ml_model(model, train_data, params=None, test_data=None):
 
     if params is not None:
         t = time.time()
-        search = BayesSearchCV(estimator=model, search_spaces=params, n_jobs=-1, cv=4)
+        search = BayesSearchCV(estimator=model, search_spaces=params, n_jobs=int(n_cpus * 0.45), cv=5)
         search.fit(x_train, y_train)
         model = search.best_estimator_
         logging.info(f"Training time: {time.time() - t}")

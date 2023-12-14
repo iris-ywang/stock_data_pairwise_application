@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import logging
-from sklearn.svm import SVC, SVR
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from load_data import GetData
 from pairwise_approach import performance_standard_approach, performance_pairwise_approach
 import warnings
@@ -40,20 +40,24 @@ def run(year, n_portofolios, random_state=None):
     '''
 
     params_reg = {
-    'C': (1e-1, 100.0, 'log-uniform'), 
-    'gamma': (1e-3, 1.0, 'log-uniform'),
-    }
+    'criterion': ['mse'],
+    'max_features': [1, 0.6, 0.3],
+    'max_samples': [1, 0.8, 0.6, 0.4],
+    'n_estimators': [100, 400, 800, 1200, 1600, 2000]
+                     }
 
     params_cls = {
-    'C': (1e-1, 100.0, 'log-uniform'), 
-    'gamma': (1e-3, 1.0, 'log-uniform'),
+    'criterion': ['gini', 'entropy'],
+    'max_features': [1, 0.6, 0.3],
+    'max_samples': [1, 0.8, 0.6, 0.4],
+    'n_estimators': [100, 400, 800, 1200, 1600, 2000]
     }
 
     n_cpus = multiprocessing.cpu_count()
 
 
-    ML_reg = SVR()
-    ML_cls = SVC()
+    ML_reg = RandomForestRegressor(n_jobs=int(n_cpus * 0.45), random_state=random_state)
+    ML_cls = RandomForestClassifier(n_jobs=int(n_cpus * 0.45), random_state=random_state)
     return_sa = performance_standard_approach(data, ML_reg, n_portofolios, params=params_reg)
     returns_pa = performance_pairwise_approach(data, ML_cls, n_portofolios, params=params_cls)
 
@@ -71,11 +75,12 @@ if __name__ == "__main__":
     results = []
     n_portofolios = [10, 20, 30, 50, 75]  
     for year in range(2010, 2021):
-        all_returns_dict = run(year, n_portofolios, )
-        for n_p, returns in all_returns_dict.items():
-            returns = [year, n_p, 0] + returns
-            results.append(returns)
-        np.save("results_run_20231203_bayessearch_svm_2010.npy", np.array(results))
+        for rs in [111,222,333]:
+            all_returns_dict = run(year, n_portofolios, )
+            for n_p, returns in all_returns_dict.items():
+                returns = [year, n_p, rs] + returns
+                results.append(returns)
+        np.save("results_run_20231203_bayessearch_rf_2010.npy", np.array(results))
 
 
 
