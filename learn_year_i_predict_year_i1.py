@@ -40,15 +40,15 @@ def run(year, n_portofolios, random_state=None):
     '''
 
     params_reg = {
-    'max_features': (0.2, 0.999),
-    'max_samples':  (0.2, 0.999),
-    'n_estimators': (50, 2000),
+    'max_features': (0.05, 0.999),
+    'max_samples':  (0.05, 0.999),
+    'n_estimators': (50, 1e5),
                      }
 
     params_cls = {
-    'max_features': (0.2, 0.999),
-    'max_samples': (0.2, 0.999),
-    'n_estimators': (50, 2000),
+    'max_features': (0.05, 0.999),
+    'max_samples': (0.05, 0.999),
+    'n_estimators': (50, 1e5),
     }
 
     n_cpus = multiprocessing.cpu_count()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
             for n_p, returns in all_returns_dict.items():
                 returns = [year, n_p, rs] + returns
                 results.append(returns)
-        np.save("results_run_20231203_bayessearch_rf_2010.npy", np.array(results))
+        np.save("results_run_20231218_bayessearch_rf_2010.npy", np.array(results))
 
 
 
